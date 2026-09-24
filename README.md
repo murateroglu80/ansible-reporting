@@ -6,7 +6,7 @@ Bash history'de komut parametreleri veya hassas verilerin gözükmemesi için t�
 
 ## 🚀 Özellikler
 
-- **Dinamik Veri Çekme:** Sunuculardan (host) gelen çıktıları otomatik JSON'a çevirir.
+- **Otomatik Metin (Plain Text) Çözümleme:** Sunuculardan gelen çıktıları JSON olarak alabilir veya **düz metin çıktısındaki anahtar-değer ilişkilerini (örn: `Version : 10.7`) otomatik algılayarak tablo sütunlarına dönüştürebilir.** İşlem yapılan sunucunun adı otomatik olarak rapora (`Sunucu` sütunu) eklenir.
 - **Gelişmiş Filtreleme:** `<`, `>`, `=`, `contains` gibi operatörleri destekleyen özel bir Python eklentisine sahiptir. Tip uyuşmazlığında uyarı (warning) verir ve süreci kesintiye uğratmaz.
 - **Güvenlik:** Tüm parametreler ve komut yapıları playbook dışında tutulduğu için terminal geçmişinde veya loglarda hiçbir argüman izi bırakmaz.
 - **Çoklu Çıktı Formatı:** Sonuçları doğrudan **JSON**, **CSV**, **Excel** formatına dönüştürebilir veya dosya oluşturmadan doğrudan **Ekrana (Console)** basabilirsiniz (`none` seçeneği).
@@ -48,12 +48,12 @@ Bash history'de komut parametreleri veya hassas verilerin gözükmemesi için t�
    enable_filters: false                 # Filtreleri açıp kapatmak için (true/false)
    
    filters:
-     - column: "status"
+     - column: "Version"
        operator: "contains"
-       value: "active"
-     - column: "cpu_usage"
-       operator: ">"
-       value: 80.5
+       value: "10.7"
+     # - column: "License"
+     #   operator: "="
+     #   value: "Full"
    ```
 
 ## ▶️ Kullanım
