@@ -9,7 +9,8 @@ Bash history'de komut parametreleri veya hassas verilerin gözükmemesi için t�
 - **Dinamik Veri Çekme:** Sunuculardan (host) gelen çıktıları otomatik JSON'a çevirir.
 - **Gelişmiş Filtreleme:** `<`, `>`, `=`, `contains` gibi operatörleri destekleyen özel bir Python eklentisine sahiptir. Tip uyuşmazlığında uyarı (warning) verir ve süreci kesintiye uğratmaz.
 - **Güvenlik:** Tüm parametreler ve komut yapıları playbook dışında tutulduğu için terminal geçmişinde veya loglarda hiçbir argüman izi bırakmaz.
-- **Çoklu Çıktı Formatı:** Sonuçları doğrudan **JSON**, **CSV** veya **Excel** formatına dönüştürebilir.
+- **Çoklu Çıktı Formatı:** Sonuçları doğrudan **JSON**, **CSV**, **Excel** formatına dönüştürebilir veya dosya oluşturmadan doğrudan **Ekrana (Console)** basabilirsiniz (`none` seçeneği).
+- **Esnek Filtreleme Toggle:** İhtiyacınıza göre filtreleri tek bir ayarla tamamen kapatıp (`enable_filters: false`) tüm veriyi ham haliyle işleyebilirsiniz.
 
 ## 📦 Gereksinimler
 
@@ -42,7 +43,9 @@ Bash history'de komut parametreleri veya hassas verilerin gözükmemesi için t�
    
    ```yaml
    target_command: "/opt/bin/command -c" # Sunucularda çalıştırılacak asıl komut
-   output_format: "excel"                # Seçenekler: json, csv, excel
+   output_format: "none"                 # Seçenekler: json, csv, excel, none
+   
+   enable_filters: false                 # Filtreleri açıp kapatmak için (true/false)
    
    filters:
      - column: "status"
@@ -63,7 +66,7 @@ ansible-playbook rapor.yml
 
 ### 📋 Beklenen Sonuçlar
 - Eğer veriler filtrelerden başarıyla geçerse `output/` klasörünün içinde konsolide edilmiş tüm sunucuların sonuçları oluşturulur.
-- İstediğiniz hedef formata göre (`output_format` parametresi) `konsolide_rapor.json`, `konsolide_rapor.csv` veya `konsolide_rapor.xlsx` isimli dosya Control Node üzerinde (output klasöründe) oluşturulur.
+- İstediğiniz hedef formata göre (`output_format` parametresi) `konsolide_rapor.json`, `konsolide_rapor.csv` veya `konsolide_rapor.xlsx` isimli dosya Control Node üzerinde (output klasöründe) oluşturulur. Eğer **`none`** formati seçtiyseniz, dosya oluşturulmaz, tüm sonuç doğrudan ekrana okunaklı bir şekilde yazdırılır.
 - Numerik olmayan bir veriye (örn. `"N/A"`) `>` veya `<` ile işlem yapılmaya çalışıldığında Ansible ekranında süreci bozmayan güvenli bir uyarı görürsünüz:
   `[UYARI] 'cpu_usage' kolonu numerik değil ('N/A'), > operatörü uygulanamaz!`
 
