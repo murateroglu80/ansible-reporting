@@ -58,11 +58,14 @@ Bash history'de komut parametreleri veya hassas verilerin gözükmemesi için t�
 
 ## ▶️ Kullanım
 
-Tüm ayarları tamamladıktan sonra playbook'u aşağıdaki gibi temiz bir şekilde çalıştırabilirsiniz:
+Sistemi çalıştırmak, sanal bir ortam (venv) oluşturarak eksik tüm kütüphaneleri (Ansible, pandas vb.) otomatik kurmak ve raporlamayı hemen başlatmak için hazırladığımız `run.sh` dosyasını çalıştırabilirsiniz:
 
 ```bash
-ansible-playbook rapor.yml
+chmod +x run.sh
+./run.sh
 ```
+
+*(Eğer tüm kütüphaneler sisteminizde zaten kuruluysa ve sanal ortam kullanmak istemiyorsanız, doğrudan `ansible-playbook rapor.yml` de diyebilirsiniz.)*
 
 ### 📋 Beklenen Sonuçlar
 - Eğer veriler filtrelerden başarıyla geçerse `output/` klasörünün içinde konsolide edilmiş tüm sunucuların sonuçları oluşturulur.
