@@ -16,7 +16,8 @@ def custom_filter(data, filters):
         try:
             data = json.loads(data)
         except Exception as e:
-            display.warning(f"[UYARI] Gelen veri geçerli bir JSON değil. İçerik atlanıyor.")
+            snippet = (data[:60] + '...') if len(data) > 60 else data
+            display.warning(f"[UYARI] Gelen veri geçerli bir JSON değil. Hata: {e} | Gelen Veri: {snippet}")
             return []
 
     if isinstance(data, dict):
