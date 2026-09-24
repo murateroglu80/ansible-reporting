@@ -6,6 +6,8 @@
 target_command: "/opt/bin/command -c"
 output_format: "none" # Seçenekler: json, csv, excel, none
 
+enable_filters: false # Filtreleri açmak/kapatmak için (true/false)
+
 filters:
   - column: "status"
     operator: "contains"

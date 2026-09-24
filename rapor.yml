@@ -13,9 +13,14 @@
       register: command_output
       ignore_errors: true
 
-    - name: Custom filtreleri uygula
+    - name: Custom filtreleri uygula (ve JSON Parse)
       set_fact:
-        filtered_data: "{{ command_output.stdout | custom_filter(user_config.filters) }}"
+        filtered_data: >-
+          {{
+            command_output.stdout | custom_filter(
+              user_config.filters if (user_config.enable_filters | default(false) | bool) else []
+            )
+          }}
       when: command_output.rc == 0 and command_output.stdout != ""
 
 - name: Konsolidasyon ve Raporlama
