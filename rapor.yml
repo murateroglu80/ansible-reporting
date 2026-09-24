@@ -1,0 +1,68 @@
+---
+- name: Veri Toplama ve Filtreleme
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Config dosyasını yükle
+      include_vars:
+        file: config.yml
+        name: user_config
+
+    - name: Uzak sunucularda komutu çalıştır
+      shell: "{{ user_config.target_command }}"
+      register: command_output
+      ignore_errors: true
+
+    - name: JSON çıktıyı çözümle
+      set_fact:
+        parsed_data: "{{ command_output.stdout | from_json }}"
+      when: command_output.rc == 0 and command_output.stdout != ""
+      ignore_errors: true
+
+    - name: Custom filtreleri uygula
+      set_fact:
+        filtered_data: "{{ parsed_data | custom_filter(user_config.filters) }}"
+      when: parsed_data is defined
+
+- name: Konsolidasyon ve Raporlama
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Config dosyasını yükle
+      include_vars:
+        file: config.yml
+        name: user_config
+        
+    - name: Çıktı (output) dizinini oluştur
+      file:
+        path: ./output
+        state: directory
+
+    - name: Tüm sunuculardan filtrelenmiş verileri topla
+      set_fact:
+        all_data: >-
+          {{
+            groups['all'] |
+            map('extract', hostvars, 'filtered_data') |
+            select('defined') |
+            list
+          }}
+
+    - name: Konsolide veri listesini başlat
+      set_fact:
+        consolidated_data: []
+        
+    - name: Listeleri düzleştir (Flatten) ve tek bir listede birleştir
+      set_fact:
+         consolidated_data: "{{ consolidated_data + item }}"
+      loop: "{{ all_data }}"
+      when: all_data | length > 0
+
+    - name: Konsolide edilmiş veriyi JSON olarak kaydet
+      copy:
+        content: "{{ consolidated_data | to_nice_json }}"
+        dest: "./output/konsolide_rapor.json"
+        
+    - name: JSON verisini istenen formata (CSV/Excel) dönüştür
+      command: "python3 ./scripts/json_to_excel.py ./output/konsolide_rapor.json ./output/konsolide_rapor.{{ user_config.output_format }} {{ user_config.output_format }}"
+      when: user_config.output_format in ['csv', 'excel']
