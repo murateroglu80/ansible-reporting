@@ -4,7 +4,7 @@
 # target_command: 'echo "[{\"host\": \"server1\", \"status\": \"active\", \"cpu_usage\": 90.5}, {\"host\": \"server2\", \"status\": \"active\", \"cpu_usage\": \"N/A\"}]"'
 
 target_command: "/opt/bin/command -c"
-output_format: "excel" # Seçenekler: json, csv, excel
+output_format: "none" # Seçenekler: json, csv, excel, none
 
 filters:
   - column: "status"

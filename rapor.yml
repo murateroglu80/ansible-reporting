@@ -52,10 +52,16 @@
       loop: "{{ all_data }}"
       when: all_data | length > 0
 
+    - name: Sonuçları ekrana yazdır (output_format none ise)
+      debug:
+        msg: "{{ consolidated_data | to_nice_json }}"
+      when: user_config.output_format == 'none'
+
     - name: Konsolide edilmiş veriyi JSON olarak kaydet
       copy:
         content: "{{ consolidated_data | to_nice_json }}"
         dest: "./output/konsolide_rapor.json"
+      when: user_config.output_format != 'none'
         
     - name: JSON verisini istenen formata (CSV/Excel) dönüştür
       command: "python3 ./scripts/json_to_excel.py ./output/konsolide_rapor.json ./output/konsolide_rapor.{{ user_config.output_format }} {{ user_config.output_format }}"
