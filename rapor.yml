@@ -18,7 +18,8 @@
         filtered_data: >-
           {{
             command_output.stdout | custom_filter(
-              user_config.filters if (user_config.enable_filters | default(false) | bool) else []
+              filters=(user_config.filters if (user_config.enable_filters | default(false) | bool) else []),
+              host_name=inventory_hostname
             )
           }}
       when: command_output.rc == 0 and command_output.stdout != ""

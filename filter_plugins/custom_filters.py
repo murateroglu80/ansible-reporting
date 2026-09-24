@@ -3,27 +3,50 @@ from ansible.utils.display import Display
 
 display = Display()
 
-def custom_filter(data, filters):
+def custom_filter(data, filters, host_name="unknown"):
     """
-    Gelen JSON verisini belirtilen kurallara göre filtreler.
-    data: string (JSON), dict veya list of dicts
+    Gelen veriyi (JSON veya Düz Metin) belirtilen kurallara göre filtreler ve yapılandırır.
+    data: string, dict veya list of dicts
     filters: list of dicts (column, operator, value)
+    host_name: İşlemin yapıldığı sunucunun adı (Sütun olarak eklenecek)
     """
     if not data:
         return []
         
     if isinstance(data, str):
         try:
+            # Önce JSON formatında mı diye dene
             data = json.loads(data)
-        except Exception as e:
-            snippet = (data[:60] + '...') if len(data) > 60 else data
-            display.warning(f"[UYARI] Gelen veri geçerli bir JSON değil. Hata: {e} | Gelen Veri: {snippet}")
-            return []
+        except Exception:
+            # JSON değilse, gelen metni satır satır okuyup SÜTUNLARA (Dictionary) çevir
+            parsed_dict = {"Sunucu": host_name}
+            lines = data.strip().split('\n')
+            
+            for line in lines:
+                line = line.strip()
+                if not line or line.lower().startswith('copyright'):
+                    continue
+                
+                # Eğer satırda ':' varsa, bunu "Sütun_Adı : Değer" olarak ayır
+                if ':' in line:
+                    parts = line.split(':', 1)
+                    key = parts[0].strip()
+                    val = parts[1].strip()
+                    parsed_dict[key] = val
+                else:
+                    # İki nokta olmayan satırları (örn: Trellix Endpoint Security...) Ürün Adı sütununa koy
+                    parsed_dict["Urun_Adi"] = line
+                    
+            data = [parsed_dict]
 
     if isinstance(data, dict):
         data = [data]
     elif not isinstance(data, list):
         return []
+
+    # Eğer filtreleme özelliği kapalıysa veriyi filtrelemeden direkt döndür
+    if not filters:
+        return data
 
     filtered_data = []
     

@@ -9,9 +9,10 @@ output_format: "none" # Seçenekler: json, csv, excel, none
 enable_filters: false # Filtreleri açmak/kapatmak için (true/false)
 
 filters:
-  - column: "status"
+  - column: "Version"
     operator: "contains"
-    value: "active"
-  - column: "cpu_usage"
-    operator: ">"
-    value: 80.5
+    value: "10.7"
+  # Örnek kullanım:
+  # - column: "License"
+  #   operator: "="
+  #   value: "Full"
