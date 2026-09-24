@@ -13,16 +13,10 @@
       register: command_output
       ignore_errors: true
 
-    - name: JSON çıktıyı çözümle
-      set_fact:
-        parsed_data: "{{ command_output.stdout | from_json }}"
-      when: command_output.rc == 0 and command_output.stdout != ""
-      ignore_errors: true
-
     - name: Custom filtreleri uygula
       set_fact:
-        filtered_data: "{{ parsed_data | custom_filter(user_config.filters) }}"
-      when: parsed_data is defined
+        filtered_data: "{{ command_output.stdout | custom_filter(user_config.filters) }}"
+      when: command_output.rc == 0 and command_output.stdout != ""
 
 - name: Konsolidasyon ve Raporlama
   hosts: localhost

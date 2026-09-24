@@ -1,3 +1,4 @@
+import json
 from ansible.utils.display import Display
 
 display = Display()
@@ -5,12 +6,19 @@ display = Display()
 def custom_filter(data, filters):
     """
     Gelen JSON verisini belirtilen kurallara göre filtreler.
-    data: dict veya list of dicts
+    data: string (JSON), dict veya list of dicts
     filters: list of dicts (column, operator, value)
     """
     if not data:
         return []
         
+    if isinstance(data, str):
+        try:
+            data = json.loads(data)
+        except Exception as e:
+            display.warning(f"[UYARI] Gelen veri geçerli bir JSON değil. İçerik atlanıyor.")
+            return []
+
     if isinstance(data, dict):
         data = [data]
     elif not isinstance(data, list):
