@@ -19,7 +19,8 @@
           {{
             command_output.stdout | custom_filter(
               filters=(user_config.filters if (user_config.enable_filters | default(false) | bool) else []),
-              host_name=inventory_hostname
+              host_name=inventory_hostname,
+              host_ip=(ansible_host | default('Bilinmiyor'))
             )
           }}
       when: command_output.rc == 0 and command_output.stdout != ""
@@ -63,12 +64,20 @@
         msg: "{{ consolidated_data | to_nice_json }}"
       when: user_config.output_format == 'none'
 
+    - name: Zaman damgası (DDMMYYHHMM) oluştur
+      set_fact:
+        timestamp: "{{ lookup('pipe', 'date +%d%m%y%H%M') }}"
+        
+    - name: Dosya uzantısını belirle (Excel ise xlsx olmalı)
+      set_fact:
+        file_ext: "{{ 'xlsx' if user_config.output_format == 'excel' else user_config.output_format }}"
+
     - name: Konsolide edilmiş veriyi JSON olarak kaydet
       copy:
         content: "{{ consolidated_data | to_nice_json }}"
-        dest: "./output/konsolide_rapor.json"
+        dest: "./output/konsolide_rapor_{{ timestamp }}.json"
       when: user_config.output_format != 'none'
         
     - name: JSON verisini istenen formata (CSV/Excel) dönüştür
-      command: "python3 ./scripts/json_to_excel.py ./output/konsolide_rapor.json ./output/konsolide_rapor.{{ user_config.output_format }} {{ user_config.output_format }}"
+      command: "python3 ./scripts/json_to_excel.py ./output/konsolide_rapor_{{ timestamp }}.json ./output/konsolide_rapor_{{ timestamp }}.{{ file_ext }} {{ user_config.output_format }}"
       when: user_config.output_format in ['csv', 'excel']

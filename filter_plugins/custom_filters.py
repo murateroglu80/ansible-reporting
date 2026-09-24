@@ -3,23 +3,22 @@ from ansible.utils.display import Display
 
 display = Display()
 
-def custom_filter(data, filters, host_name="unknown"):
+def custom_filter(data, filters, host_name="unknown", host_ip="unknown"):
     """
     Gelen veriyi (JSON veya Düz Metin) belirtilen kurallara göre filtreler ve yapılandırır.
     data: string, dict veya list of dicts
     filters: list of dicts (column, operator, value)
     host_name: İşlemin yapıldığı sunucunun adı (Sütun olarak eklenecek)
+    host_ip: İşlemin yapıldığı sunucunun IP adresi (Sütun olarak eklenecek)
     """
     if not data:
         return []
         
     if isinstance(data, str):
         try:
-            # Önce JSON formatında mı diye dene
             data = json.loads(data)
         except Exception:
-            # JSON değilse, gelen metni satır satır okuyup SÜTUNLARA (Dictionary) çevir
-            parsed_dict = {"Sunucu": host_name}
+            parsed_dict = {}
             lines = data.strip().split('\n')
             
             for line in lines:
@@ -27,14 +26,12 @@ def custom_filter(data, filters, host_name="unknown"):
                 if not line or line.lower().startswith('copyright'):
                     continue
                 
-                # Eğer satırda ':' varsa, bunu "Sütun_Adı : Değer" olarak ayır
                 if ':' in line:
                     parts = line.split(':', 1)
                     key = parts[0].strip()
                     val = parts[1].strip()
                     parsed_dict[key] = val
                 else:
-                    # İki nokta olmayan satırları (örn: Trellix Endpoint Security...) Ürün Adı sütununa koy
                     parsed_dict["Urun_Adi"] = line
                     
             data = [parsed_dict]
@@ -44,7 +41,14 @@ def custom_filter(data, filters, host_name="unknown"):
     elif not isinstance(data, list):
         return []
 
-    # Eğer filtreleme özelliği kapalıysa veriyi filtrelemeden direkt döndür
+    # Her satıra IP ve Hostname bilgisini ekleyelim (JSON'dan da gelse, metinden de gelse)
+    for row in data:
+        if isinstance(row, dict):
+            # Verilerin tabloya (Excel) sıralı yansıması için başlara yazmak iyidir 
+            # ancak sözlük (dict) yapısında anahtar olarak eklenmesi yeterlidir.
+            row["Sunucu_Adi"] = host_name
+            row["IP_Adresi"] = host_ip
+
     if not filters:
         return data
 
